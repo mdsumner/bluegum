@@ -58,7 +58,7 @@ tri_graticule <- function(n = 12, xlim = c(-180, 180), ylim = c(-90, 90), hull =
             cbind(xlim[1L], ylim[1L]))
   p0 <- cbind(p0, z = 0)
   pts <- reproj::reproj(p0,
-                      source = 4326, target = "+proj=geocent")
+                      source = 4326, target = crs)
 
   if (chull_ok) {
     #print('chull')
