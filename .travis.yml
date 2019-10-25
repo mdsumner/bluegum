@@ -2,3 +2,15 @@
 
 language: R
 cache: packages
+sudo: required
+
+addons:
+  apt:
+    sources:
+      - sourceline: 'ppa:ubuntugis/ubuntugis-unstable'
+    packages:
+      - libproj-dev
+
+after_success:
+  - Rscript -e 'covr::codecov()'
+
