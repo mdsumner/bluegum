@@ -1,14 +1,23 @@
 Package: bluegum
-Title: What the Package Does (One Line, Title Case)
+Title: Global Meshes
 Version: 0.0.0.9001
 Authors@R: 
-    person(given = "First",
-           family = "Last",
-           role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: What license it uses
+    c(person("Michael D.", "Sumner", 
+      email = "mdsumner@gmail.com", 
+      role = c("aut", "cre"), 
+      comment = c(ORCID = "0000-0002-2471-7511")))
+Description: Create various forms of globe meshes. 
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
+Imports: 
+    rgl,
+    raster,
+    quadmesh,
+    reproj,
+    viridis,
+    geometry,
+    colourvalues
+Suggests: 
+    testthat (>= 2.1.0)

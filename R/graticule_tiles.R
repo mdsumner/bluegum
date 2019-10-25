@@ -13,11 +13,15 @@
 #'
 #' We use the Geocentric XYZ projection by default, on WGS84. For spherical
 #' forms use 'crs = "+proj=sphere +a=1' for a sphere of radius 1.
+#'
 #' @param n number of tile faces in x and y directions (give 2-elements for
 #'   independent x, y)
 #' @param xlim longitude range (phi, azimuth)
 #' @param ylim latitude range (theta, elevation)
 #' @param hull if `TRUE` use the convex hull (assuming full sphere)
+#' @param sub depth of subdivision to apply, no subdivision by default ('sub = 0')
+#' @param crs projection of globe in PROJ.4 form
+#'
 #' @export
 #' @return mesh3d object
 #' @examples
@@ -35,26 +39,29 @@
 #' aspect3d(1, 1, 1)
 #' rglwidget()
 tri_graticule <- function(n = 12, xlim = c(-180, 180), ylim = c(-90, 90), hull = FALSE,
-                          crs = "+proj=geocent +datum=WGS84") {
+                          crs = "+proj=geocent +datum=WGS84", sub = 0) {
+
+  #n = 12; xlim = c(-180, 180); ylim = c(-90, 90); hull = FALSE; crs = "+proj=geocent +datum=WGS84"; sub = 0
   xlim <- sort(xlim)
   ylim <- sort(ylim)
-  convh_ok <- all(c(xlim, ylim) == c(-180, 180, -90, 90))
+  chull_ok <- all(c(xlim, ylim) == c(-180, 180, -90, 90))
   ## but,
-  if (hull) conv_ok <- TRUE
+  if (hull) chull_ok <- TRUE
   n <- rep(n, length.out = 2L)
   span <- c(diff(xlim), diff(ylim))
   grain <- span / n
   (lon <- seq(xlim[1L], by = grain[1L], length.out = n[1L]))
   lat <- seq(ylim[1L], ylim[2L], by = grain[2L])
-  p0 <- rbind(cbind(x = xlim[1L], y = 90),
+
+  p0 <- rbind(cbind(x = xlim[1L], y = ylim[2L]),
             do.call(rbind, lapply(lat[-c(1, length(lat))], function(i) cbind(lon, i))),
-            cbind(xlim[1L], -90))
+            cbind(xlim[1L], ylim[1L]))
   p0 <- cbind(p0, z = 0)
   pts <- reproj::reproj(p0,
                       source = 4326, target = "+proj=geocent")
 
-  if (convh_ok) {
-    #print('convh')
+  if (chull_ok) {
+    #print('chull')
     triangles <- geometry::convhulln(pts[,1:3])
   } else {
     #print('delone')
@@ -62,8 +69,13 @@ tri_graticule <- function(n = 12, xlim = c(-180, 180), ylim = c(-90, 90), hull =
   }
 
   ord <- order(p0[t(triangles), 1], p0[t(triangles), 2])
-  rgl::tmesh3d(rbind(t(pts), h = 1), t(triangles),
+  mesh <- rgl::tmesh3d(rbind(t(pts), h = 1), t(triangles),
                material = list(color = viridis::viridis(nrow(pts)), meshColor = "vertices"))
+  if (sub > 0) {
+    mesh <- rgl::subdivision3d(mesh)
+    mesh$material$color <- colourvalues::colour_values(mesh$vb[2L, ])
+  }
+  mesh
 }
 
 #' @name tri_graticule
@@ -74,11 +86,17 @@ quad_graticule <- function(n = 12, xlim = c(-180, 180), ylim = c(-90, 90), hull 
   xlim <- sort(xlim)
   ylim <- sort(ylim)
   n <- rep(n, length.out = 2L)
-  out <- reproj::reproj(quadmesh::quadmesh(raster::raster(raster::extent(xlim, ylim), nrows = n[1L], ncols = n[2L],
-                                    crs = "+init=epsg:4326")), target = crs)
-  class(out) <- c("mesh3d", "shape3d")  ## drop quadmesh part
-  out$raster_metadata <- NULL
+  r0 <- raster::setValues(raster::raster(raster::extent(xlim, ylim), nrows = n[1L], ncols = n[2L],
+                       crs = "+init=epsg:4326"), 0)
+  out <- suppressWarnings(reproj::reproj(quadmesh::quadmesh(r0), target = crs))
+  #class(out) <- c("mesh3d", "shape3d")  ## drop quadmesh part
+  ord <-  rev(seq_len(ncol(out$ib)))  ## reverse raster order
+  ## we need the coordinate and index creation out of quadmesh, and use qmesh3d() so we can
+  ## control the meshColor
+  out$material <- list(color = viridis::viridis(ncol(out$ib))[ord])
+  #out$raster_metadata <- NULL
   out$primitivetype <- NULL
+  out$meshColor <- "faces"
   out
 }
 

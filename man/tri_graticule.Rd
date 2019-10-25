@@ -6,13 +6,24 @@
 \title{Graticule tiles}
 \usage{
 tri_graticule(n = 12, xlim = c(-180, 180), ylim = c(-90, 90),
-  hull = FALSE, crs = "+proj=geocent +datum=WGS84")
+  hull = FALSE, crs = "+proj=geocent +datum=WGS84", sub = 0)
 
 quad_graticule(n = 12, xlim = c(-180, 180), ylim = c(-90, 90),
   hull = FALSE, crs = "+proj=geocent +datum=WGS84")
 }
 \arguments{
-\item{n}{number of tile faces in x and y directions (give 2-elements for independent x, y)}
+\item{n}{number of tile faces in x and y directions (give 2-elements for
+independent x, y)}
+
+\item{xlim}{longitude range (phi, azimuth)}
+
+\item{ylim}{latitude range (theta, elevation)}
+
+\item{hull}{if `TRUE` use the convex hull (assuming full sphere)}
+
+\item{crs}{projection of globe in PROJ.4 form}
+
+\item{sub}{depth of subdivision to apply, no subdivision by default ('sub = 0')}
 }
 \value{
 mesh3d object
@@ -21,11 +32,17 @@ mesh3d object
 Triangles, 2 per tile-face.
 }
 \details{
-We use the termniology longitude (phi, azimuth) and latitude (theta, elevation) in the range
--180, 180 degrees. Longitude range is defined by xlim, latitude range by ylim.
+The hull form can be used to close a mesh with the convex hull method that is
+the Delaunay triangulation of points on a sphere. If the full sphere is not
+included then a segment can be created. Otherwise, if `hull = FALSE` then an
+actual Delaunay triangulation mesh is created.
 
-We use the Geocentric XYZ projection by default, on WGS84. For spherical forms use
-'crs = "+proj=sphere +a=1' for a sphere of radius 1.
+We use the termniology longitude (phi, azimuth) and latitude (theta,
+elevation) in the range -180, 180 degrees and -90, 90 degrees. Longitude
+range is defined by xlim, latitude range by ylim.
+
+We use the Geocentric XYZ projection by default, on WGS84. For spherical
+forms use 'crs = "+proj=sphere +a=1' for a sphere of radius 1.
 }
 \examples{
 library(rgl)
