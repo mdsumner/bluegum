@@ -11,6 +11,10 @@ status](https://travis-ci.org/mdsumner/bluegum.svg?branch=master)](https://travi
 status](https://ci.appveyor.com/api/projects/status/github/mdsumner/bluegum?branch=master&svg=true)](https://ci.appveyor.com/project/mdsumner/bluegum)
 [![Codecov test
 coverage](https://codecov.io/gh/mdsumner/bluegum/branch/master/graph/badge.svg)](https://codecov.io/gh/mdsumner/bluegum?branch=master)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/bluegum)](https://CRAN.R-project.org/package=bluegum)
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 <!-- badges: end -->
 
 The goal of bluegum is to get the simplest mesh creation for the
@@ -25,14 +29,19 @@ WIP
 ### Scope
 
 We will limit to visualizations that use a geocentric projection of the
-Earth’s surface - i.e. a globe. Luckily this does allow us to visit a
-lot of options.
+Earth’s surface - i.e. a globe.
+
+Luckily this does allow us to visit a lot of options.
 
 #### convex hull in 3D is Delaunay surface
 
-For use with arbitrary locations on the sphere. It really does need to
-be spherical otherwise the hull wraps around the inside of the sliced
-sphere.
+The `tri_graticule()` function can create an entire sphere or a portion
+of one and use the convex hull method or a Delaunay-triangulation
+algorithm directly.
+
+In hull mode, this could be used for arbitrary locations on the sphere
+and works as well with a portion of the sphere but the hull will also
+wrap around the inside of the sliced sphere so it’s a different result.
 
 ``` r
 library(bluegum)
@@ -53,9 +62,9 @@ plot3d(hull, specular = grey(0.05))
 rglwidget()
 ```
 
-But, we can’t ask for a partial sphere when it’s a hull, because the
-hull has to wrap around (well, you might want this but it’s not faceted
-on those internal sides).
+If we ask for a partial sphere when it’s a hull, because the hull has to
+wrap around (well, you might want this but it’s not faceted on those
+internal sides).
 
 ``` r
 hull <- tri_graticule(xlim = c(100, 150),  hull = TRUE)
@@ -64,9 +73,35 @@ plot3d(hull, specular = "black")
 rglwidget()
 ```
 
+### random points in hull mode
+
+This mode requires us to set the number of coordinates (not the number
+of faces in x/y) and allows input of points on the surface, or they are
+created randomly.
+
+``` r
+library(rgl)
+hull <- hull_graticule(n_coords = 24)
+clear3d()
+plot3d(hull, specular = "black")
+rglwidget()
+```
+
+We can pass in a 2- or 3-column matrix of coordinates, with lon, lat,
+and elevation - 0 is used if elevation is not included.
+
+``` r
+
+hull <- hull_graticule(coords = geosphere::randomCoordinates(120))
+clear3d()
+plot3d(hull, specular = "black")
+rglwidget()
+```
+
 ### direct creation of delaunay hull
 
-If we only want a sector we need to use a triangulation tool directly.
+If we only want a sector and not wrap we need to use a triangulation
+tool directly, without hull mode.
 
 ``` r
 hull <- tri_graticule(xlim = c(100, 150),  hull = FALSE)
@@ -80,6 +115,26 @@ We probably can’t tell the difference, hull or otherwise.
 ``` r
 library(bluegum)
 hull <- tri_graticule(hull =FALSE)
+library(rgl)
+clear3d();
+plot3d(hull, alpha = 0.5, specular = "black")
+rglwidget()
+```
+
+### direct creation of quads on the sphere
+
+The function `quad_graticule()` will produce a sphere or a portion of
+one using a quadmesh. The hull mode is not relevant with quad.
+
+``` r
+hull <- quad_graticule()
+library(rgl)
+clear3d();
+plot3d(hull, alpha = 0.5, specular = "black")
+rglwidget()
+
+
+hull <- quad_graticule(ylim = c(-10, 30))
 library(rgl)
 clear3d();
 plot3d(hull, alpha = 0.5, specular = "black")

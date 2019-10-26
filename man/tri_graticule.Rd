@@ -2,11 +2,15 @@
 % Please edit documentation in R/graticule_tiles.R
 \name{tri_graticule}
 \alias{tri_graticule}
+\alias{hull_graticule}
 \alias{quad_graticule}
 \title{Graticule tiles}
 \usage{
 tri_graticule(n = 12, xlim = c(-180, 180), ylim = c(-90, 90),
-  hull = FALSE, crs = "+proj=geocent +datum=WGS84", sub = 0)
+  hull = FALSE, crs = "+proj=geocent +datum=WGS84", sub = 0, ...)
+
+hull_graticule(n_coords = 360, ..., coords = NULL,
+  crs = "+proj=geocent +datum=WGS84", sub = 0)
 
 quad_graticule(n = 12, xlim = c(-180, 180), ylim = c(-90, 90),
   hull = FALSE, crs = "+proj=geocent +datum=WGS84", sub = 0)
@@ -24,6 +28,12 @@ independent x, y)}
 \item{crs}{projection of globe in PROJ.4 form}
 
 \item{sub}{depth of subdivision to apply, no subdivision by default ('sub = 0')}
+
+\item{...}{unused}
+
+\item{n_coords}{number of coordinates to use for the random sample in hull_coordinates()}
+
+\item{coords}{an optional input set of coordinates to build the hull}
 }
 \value{
 mesh3d object
@@ -45,6 +55,10 @@ range is defined by xlim, latitude range by ylim.
 
 We use the Geocentric XYZ projection by default, on WGS84. For spherical
 forms use 'crs = "+proj=sphere +a=1' for a sphere of radius 1.
+
+For \code{\link[=hull_graticule]{hull_graticule()}} \code{coords} must be a matrix of 2 or 3 columns of
+lon, lat, (degrees), elevation (metres) - if z is not present it is set to 0.
+Use of \code{n_coords} and \code{coords} is mutually exclusive.
 }
 \examples{
 library(rgl)

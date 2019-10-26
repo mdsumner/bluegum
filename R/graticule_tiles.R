@@ -16,6 +16,10 @@
 #' We use the Geocentric XYZ projection by default, on WGS84. For spherical
 #' forms use 'crs = "+proj=sphere +a=1' for a sphere of radius 1.
 #'
+#' For [hull_graticule()] `coords` must be a matrix of 2 or 3 columns of
+#' lon, lat, (degrees), elevation (metres) - if z is not present it is set to 0.
+#' Use of `n_coords` and `coords` is mutually exclusive.
+#'
 #' @param n number of tile faces in x and y directions (give 2-elements for
 #'   independent x, y)
 #' @param xlim longitude range (phi, azimuth)
@@ -23,7 +27,9 @@
 #' @param hull if `TRUE` use the convex hull (assuming full sphere)
 #' @param sub depth of subdivision to apply, no subdivision by default ('sub = 0')
 #' @param crs projection of globe in PROJ.4 form
-#'
+#' @param n_coords number of coordinates to use for the random sample in hull_coordinates()
+#' @param coords an optional input set of coordinates to build the hull
+#' @param ... unused
 #' @export
 #' @return mesh3d object
 #' @examples
@@ -41,7 +47,7 @@
 #' aspect3d(1, 1, 1)
 #' #rglwidget()
 tri_graticule <- function(n = 12, xlim = c(-180, 180), ylim = c(-90, 90), hull = FALSE,
-                          crs = "+proj=geocent +datum=WGS84", sub = 0) {
+                          crs = "+proj=geocent +datum=WGS84", sub = 0, ...) {
 
   #n = 12; xlim = c(-180, 180); ylim = c(-90, 90); hull = FALSE; crs = "+proj=geocent +datum=WGS84"; sub = 0
   xlim <- sort(xlim)
@@ -80,11 +86,46 @@ tri_graticule <- function(n = 12, xlim = c(-180, 180), ylim = c(-90, 90), hull =
   mesh
 }
 
+
+
+#' @name tri_graticule
+#' @export
+hull_graticule <- function(n_coords = 360, ..., coords = NULL,
+                          crs = "+proj=geocent +datum=WGS84", sub = 0) {
+  nms <- names(list(...))
+  if ("xlim" %in% nms || "ylim" %in% nms || "hull" %in% nms) {
+    warning("xlim, ylim, hull arguments are not valid for hull_graticule() and will be ignored")
+  }
+
+  if (!is.null(coords)) {
+    if (n_coords != 360) warning('argument n_coords is ignore if coords passed in')
+    p0 <- coords
+  } else {
+    p0 <- geosphere::randomCoordinates(n = n_coords)
+  }
+  if (ncol(p0) == 2) p0 <- cbind(p0, z = 0)
+  pts <- reproj::reproj(p0,
+                        source = "+proj=longlat +datum=WGS84", target = crs)
+
+  triangles <- geometry::convhulln(pts[,1:3])
+
+
+  col <- colourvalues::colour_values(apply(matrix(p0[t(triangles), 2], nrow = 3L), 2, mean))
+  mesh <- rgl::tmesh3d(rbind(t(pts), h = 1), t(triangles),
+                       material = list(color = col, meshColor = "faces"))
+  if (sub > 0) {
+    mesh <- rgl::subdivision3d(mesh)
+    mesh$material$color <- colourvalues::colour_values(mesh$vb[2L, ])
+  }
+  mesh
+}
+
+
 #' @name tri_graticule
 #' @export
 quad_graticule <- function(n = 12, xlim = c(-180, 180), ylim = c(-90, 90), hull = FALSE,
                            crs = "+proj=geocent +datum=WGS84", sub = 0) {
-  if (hull) warning("hull argument is ignored for quad type, use tri_graticule() instead")
+  if (hull) warning("hull argument is ignored for quad type, consider tri_graticule() instead")
   xlim <- sort(xlim)
   ylim <- sort(ylim)
   n <- rep(n, length.out = 2L)
