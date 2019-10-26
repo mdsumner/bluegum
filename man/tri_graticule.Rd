@@ -5,11 +5,22 @@
 \alias{quad_graticule}
 \title{Graticule tiles}
 \usage{
-tri_graticule(n = 12, xlim = c(-180, 180), ylim = c(-90, 90),
-  hull = FALSE, crs = "+proj=geocent +datum=WGS84", sub = 0)
+tri_graticule(
+  n = 12,
+  xlim = c(-180, 180),
+  ylim = c(-90, 90),
+  hull = FALSE,
+  crs = "+proj=geocent +datum=WGS84",
+  sub = 0
+)
 
-quad_graticule(n = 12, xlim = c(-180, 180), ylim = c(-90, 90),
-  hull = FALSE, crs = "+proj=geocent +datum=WGS84")
+quad_graticule(
+  n = 12,
+  xlim = c(-180, 180),
+  ylim = c(-90, 90),
+  hull = FALSE,
+  crs = "+proj=geocent +datum=WGS84"
+)
 }
 \arguments{
 \item{n}{number of tile faces in x and y directions (give 2-elements for
