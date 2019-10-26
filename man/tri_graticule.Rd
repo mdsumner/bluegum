@@ -9,7 +9,7 @@ tri_graticule(n = 12, xlim = c(-180, 180), ylim = c(-90, 90),
   hull = FALSE, crs = "+proj=geocent +datum=WGS84", sub = 0)
 
 quad_graticule(n = 12, xlim = c(-180, 180), ylim = c(-90, 90),
-  hull = FALSE, crs = "+proj=geocent +datum=WGS84")
+  hull = FALSE, crs = "+proj=geocent +datum=WGS84", sub = 0)
 }
 \arguments{
 \item{n}{number of tile faces in x and y directions (give 2-elements for
@@ -19,7 +19,7 @@ independent x, y)}
 
 \item{ylim}{latitude range (theta, elevation)}
 
-\item{hull}{if `TRUE` use the convex hull (assuming full sphere)}
+\item{hull}{if \code{TRUE} use the convex hull (assuming full sphere)}
 
 \item{crs}{projection of globe in PROJ.4 form}
 
@@ -34,9 +34,11 @@ Triangles, 2 per tile-face.
 \details{
 The hull form can be used to close a mesh with the convex hull method that is
 the Delaunay triangulation of points on a sphere. If the full sphere is not
-included then a segment can be created. Otherwise, if `hull = FALSE` then an
+included then a segment can be created. Otherwise, if \code{hull = FALSE} then an
 actual Delaunay triangulation mesh is created.
 
+\code{\link[=tri_graticule]{tri_graticule()}} uses Delaunay triangulation via convex hull or directly,
+\code{\link[=quad_graticule]{quad_graticule()}} creates a quadmesh and uses that, there's no hull method.
 We use the termniology longitude (phi, azimuth) and latitude (theta,
 elevation) in the range -180, 180 degrees and -90, 90 degrees. Longitude
 range is defined by xlim, latitude range by ylim.

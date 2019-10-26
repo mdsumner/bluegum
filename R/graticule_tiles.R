@@ -7,6 +7,8 @@
 #' included then a segment can be created. Otherwise, if `hull = FALSE` then an
 #' actual Delaunay triangulation mesh is created.
 #'
+#' [tri_graticule()] uses Delaunay triangulation via convex hull or directly,
+#' [quad_graticule()] creates a quadmesh and uses that, there's no hull method.
 #' We use the termniology longitude (phi, azimuth) and latitude (theta,
 #' elevation) in the range -180, 180 degrees and -90, 90 degrees. Longitude
 #' range is defined by xlim, latitude range by ylim.
@@ -81,7 +83,7 @@ tri_graticule <- function(n = 12, xlim = c(-180, 180), ylim = c(-90, 90), hull =
 #' @name tri_graticule
 #' @export
 quad_graticule <- function(n = 12, xlim = c(-180, 180), ylim = c(-90, 90), hull = FALSE,
-                           crs = "+proj=geocent +datum=WGS84") {
+                           crs = "+proj=geocent +datum=WGS84", sub = 0) {
   if (hull) warning("hull argument is ignored for quad type, use tri_graticule() instead")
   xlim <- sort(xlim)
   ylim <- sort(ylim)
@@ -97,6 +99,7 @@ quad_graticule <- function(n = 12, xlim = c(-180, 180), ylim = c(-90, 90), hull 
   #out$raster_metadata <- NULL
   out$primitivetype <- NULL
   out$meshColor <- "faces"
+  if (sub > 0) out <- rgl::subdivision3d(out, depth = sub)
   out
 }
 
