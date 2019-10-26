@@ -30,14 +30,14 @@
 #' clear3d()
 #' shade3d(x)
 #' aspect3d(1, 1, 1)
-#' rglwidget()
+#' #rglwidget()
 #'
 #' library(rgl)
 #' qx <- quad_graticule(n = c(12, 9))
 #' clear3d()
 #' shade3d(qx)
 #' aspect3d(1, 1, 1)
-#' rglwidget()
+#' #rglwidget()
 tri_graticule <- function(n = 12, xlim = c(-180, 180), ylim = c(-90, 90), hull = FALSE,
                           crs = "+proj=geocent +datum=WGS84", sub = 0) {
 
