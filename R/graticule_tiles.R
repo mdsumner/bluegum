@@ -87,7 +87,7 @@ quad_graticule <- function(n = 12, xlim = c(-180, 180), ylim = c(-90, 90), hull 
   ylim <- sort(ylim)
   n <- rep(n, length.out = 2L)
   r0 <- raster::setValues(raster::raster(raster::extent(xlim, ylim), nrows = n[1L], ncols = n[2L],
-                       crs = "+init=epsg:4326"), 0)
+                       crs = "+proj=longlat +datum=WGS84"), 0)
   out <- suppressWarnings(reproj::reproj(quadmesh::quadmesh(r0), target = crs))
   #class(out) <- c("mesh3d", "shape3d")  ## drop quadmesh part
   ord <-  rev(seq_len(ncol(out$ib)))  ## reverse raster order
